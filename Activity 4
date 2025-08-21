@@ -1,0 +1,61 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        decimal due, paid;
+        Console.Write("Enter Amount Due: ");
+        due = Convert.ToDecimal(Console.ReadLine());
+        Console.Write("Enter Amount Paid: ");
+        paid = Convert.ToDecimal(Console.ReadLine());
+
+        if (paid < due)
+        {
+            Console.WriteLine("Not enough payment!");
+            return;
+        }
+
+        decimal change = paid - due;
+        if (change == 0)
+        {
+            Console.WriteLine("Exact payment—no change");
+            return;
+        }
+
+        Console.WriteLine($"Change: {change:F2}");
+        MakeChange(change);
+    }
+
+    static void MakeChange(decimal change)
+    {
+        int[] bills = { 1000, 500, 200, 100, 50, 20, 10, 5, 1 };
+        decimal[] coins = { 0.25M, 0.10M, 0.05M };
+        int cents = (int)(change * 100);
+
+        Console.WriteLine("Denomination | Pieces");
+        foreach (int b in bills)
+        {
+            int val = b * 100;
+            int count = cents / val;
+            if (count > 0)
+            {
+                Console.WriteLine($"{b}           {count}");
+                cents %= val;
+            }
+        }
+
+        foreach (decimal c in coins)
+        {
+            int val = (int)(c * 100);
+            int count = cents / val;
+            if (count > 0)
+            {
+                Console.WriteLine($"{c}           {count}");
+                cents %= val;
+            }
+        }
+    }
+}
