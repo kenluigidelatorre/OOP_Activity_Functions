@@ -1,0 +1,59 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    class Item
+    {
+        public string Code;
+        public int Qty;
+        public decimal Price;
+        public string Cat;
+    }
+
+    static void Main()
+    {
+        var items = new List<Item>();
+        while (true)
+        {
+            Console.Write("Item Code (EXIT to stop): ");
+            string code = Console.ReadLine();
+            if (code.ToUpper() == "EXIT") break;
+
+            Console.Write("Qty: ");
+            int qty = int.Parse(Console.ReadLine());
+            Console.Write("Price: ");
+            decimal price = decimal.Parse(Console.ReadLine());
+            Console.Write("Category (GROCERY/ELECTRONICS/OTHER): ");
+            string cat = Console.ReadLine().ToUpper();
+
+            if (qty < 1 || price < 0 || (cat != "GROCERY" && cat != "ELECTRONICS" && cat != "OTHER"))
+            { Console.WriteLine("Invalid!"); continue; }
+
+            items.Add(new Item { Code = code, Qty = qty, Price = price, Cat = cat });
+        }
+
+        decimal subtotal = 0, groceryDisc = 0, electronicsTotal = 0;
+        var codes = new HashSet<string>();
+
+        foreach (var i in items)
+        {
+            decimal line = i.Qty * i.Price;
+            subtotal += line;
+            codes.Add(i.Code);
+            if (i.Cat == "GROCERY" && i.Qty >= 10) groceryDisc += line * 0.05m;
+            if (i.Cat == "ELECTRONICS") electronicsTotal += line;
+        }
+
+        decimal electronicsDisc = (electronicsTotal >= 20000) ? electronicsTotal * 0.08m : 0;
+        decimal cartDisc = (codes.Count >= 5) ? 50 : 0;
+        decimal total = subtotal - groceryDisc - electronicsDisc - cartDisc;
+
+        Console.WriteLine($"Subtotal: ₱{subtotal:F2}");
+        Console.WriteLine($"Grocery Disc: ₱{groceryDisc:F2}");
+        Console.WriteLine($"Electronics Disc: ₱{electronicsDisc:F2}");
+        Console.WriteLine($"Cart Disc: ₱{cartDisc:F2}");
+        Console.WriteLine($"Final Total: ₱{total:F2}");
+    }
+}
