@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+enum ClassType { YOGA, HIIT, DANCE }
+
+class Registration
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public ClassType Class { get; set; }
+    public string TimeSlot { get; set; }
+}
+
+class Program
+{
+    static List<Registration> schedule = new List<Registration>();
+
+    static void Main()
+    {
+        while (true)
+        {
+            Console.Write("Enter Name (or EXIT): ");
+            string name = Console.ReadLine();
+            if (name.ToUpper() == "EXIT") break;
+
+            Console.Write("Enter Age: ");
+            if (!int.TryParse(Console.ReadLine(), out int age) || age < 12 || age > 80)
+            {
+                Console.WriteLine("Invalid age (12–80).");
+                continue;
+            }
+
+            Console.Write("Enter Class (YOGA/HIIT/DANCE): ");
+            string classInput = Console.ReadLine().ToUpper();
+            if (!Enum.TryParse(classInput, out ClassType classType))
+            {
+                Console.WriteLine("Invalid class type.");
+                continue;
+            }
+
+            Console.Write("Enter Time (HH:mm): ");
+            string timeSlot = Console.ReadLine();
+            if (!IsValidTime(timeSlot))
+            {
+                Console.WriteLine("Invalid time (use HH:mm, quarter hours only).");
+                continue;
+            }
+
+            if (!TryRegister(name, age, classType, timeSlot))
+                continue;
+        }
+
+        Console.WriteLine("\nClass Schedule:");
+        var grouped = schedule.GroupBy(s => s.TimeSlot);
+        foreach (var slot in grouped)
+        {
+            Console.WriteLine($"\nTime: {slot.Key}");
+            foreach (var group in slot.GroupBy(s => s.Class))
+            {
+                Console.WriteLine($"  {group.Key}: {string.Join(", ", group.Select(s => s.Name))}");
+            }
+        }
+    }
+
+    static bool IsValidTime(string time)
+    {
+        if (TimeSpan.TryParse(time, out TimeSpan t))
+            return t.Minutes % 15 == 0;
+        return false;
+    }
+
+    static bool TryRegister(string name, int age, ClassType classType, string timeSlot)
+    {
+        if (classType == ClassType.HIIT && age < 16)
+        {
+            Console.WriteLine("Too young for HIIT.");
+            return false;
+        }
+
+        int count = schedule.Count(s => s.TimeSlot == timeSlot);
+        if (count >= 10)
+        {
+            Console.WriteLine("Time slot full.");
+            return false;
+        }
+
+        schedule.Add(new Registration { Name = name, Age = age, Class = classType, TimeSlot = timeSlot });
+        Console.WriteLine("Registered successfully!");
+        return true;
+    }
+}
