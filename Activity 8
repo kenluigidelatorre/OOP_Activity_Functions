@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        List<decimal> bills = new List<decimal>();
+
+        while (true)
+        {
+            Console.Write("Phone number (11 digits or EXIT): ");
+            string phone = Console.ReadLine();
+            if (phone.ToUpper() == "EXIT") break;
+            if (phone.Length != 11) { Console.WriteLine("Invalid phone!"); continue; }
+
+            Console.Write("Plan code (BASIC/PLUS/ULTRA): ");
+            string plan = Console.ReadLine().ToUpper();
+            if (plan != "BASIC" && plan != "PLUS" && plan != "ULTRA") { Console.WriteLine("Invalid plan!"); continue; }
+
+            Console.Write("Minutes: ");
+            int minutes = int.Parse(Console.ReadLine());
+            Console.Write("Data MB: ");
+            int data = int.Parse(Console.ReadLine());
+            if (minutes < 0 || data < 0) { Console.WriteLine("No negatives!"); continue; }
+
+            decimal rateM = (plan == "BASIC") ? 1m : (plan == "PLUS") ? 0.8m : 0.7m;
+            decimal rateD = (plan == "BASIC") ? 0.5m : (plan == "PLUS") ? 0.3m : (data > 500 ? 0.2m : 0m);
+            decimal total = (minutes * rateM) + (plan == "ULTRA" && data <= 500 ? 0 : data * rateD);
+
+            bills.Add(total);
+            Console.WriteLine($"Bill for {phone}: ₱{total:F2}");
+        }
+
+        if (bills.Count > 0)
+        {
+            decimal max = 0, sum = 0;
+            foreach (var b in bills) { if (b > max) max = b; sum += b; }
+            Console.WriteLine($"Highest: ₱{max:F2}, Average: ₱{(sum / bills.Count):F2}");
+        }
+    }
+}
