@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static bool IsValid(string sku, out string reason)
+    {
+        reason = "";
+        string[] p = sku.Split('-');
+        if (p.Length != 4) { reason = "Wrong format"; return false; }
+
+        string cat = p[0].ToUpper();
+        string yearStr = p[1];
+        string batch = p[2];
+        string size = p[3].ToUpper();
+
+        if (cat.Length < 3 || cat.Length > 6 || !cat.All(char.IsLetter))
+        { reason = "Invalid CATEGORY"; return false; }
+
+        int year;
+        if (!int.TryParse(yearStr, out year) || year < 2020)
+        { reason = "YEAR < 2020"; return false; }
+
+        if (!batch.All(char.IsDigit) || batch.Length < 2 || batch.Length > 4)
+        { reason = "Invalid BATCH"; return false; }
+
+        string[] sizes = { "S", "M", "L", "XL", "XXL" };
+        if (!sizes.Contains(size))
+        { reason = "Invalid SIZE"; return false; }
+
+        return true;
+    }
+
+    static void Main()
+    {
+        Console.Write("Enter number of SKUs: ");
+        int k = int.Parse(Console.ReadLine());
+
+        Dictionary<string, int> catCount = new Dictionary<string, int>();
+        Dictionary<string, int> sizeCount = new Dictionary<string, int>();
+        List<string> invalid = new List<string>();
+
+        for (int i = 0; i < k; i++)
+        {
+            Console.Write($"SKU {i + 1}: ");
+            string sku = Console.ReadLine().Trim().ToUpper();
+
+            if (IsValid(sku, out string reason))
+            {
+                string[] p = sku.Split('-');
+                string cat = p[0];
+                string size = p[3];
+
+                if (!catCount.ContainsKey(cat)) catCount[cat] = 0;
+                catCount[cat]++;
+
+                if (!sizeCount.ContainsKey(size)) sizeCount[size] = 0;
+                sizeCount[size]++;
+            }
+            else
+            {
+                invalid.Add($"{sku} - {reason}");
+            }
+        }
+
+        Console.WriteLine("\nInvalid SKUs:");
+        foreach (var x in invalid) Console.WriteLine(x);
+
+        Console.WriteLine("\nCategory Counts:");
+        foreach (var x in catCount) Console.WriteLine($"{x.Key}: {x.Value}");
+
+        if (sizeCount.Count > 0)
+        {
+            var top = sizeCount.OrderByDescending(s => s.Value).First();
+            Console.WriteLine($"Most Frequent Size: {top.Key} ({top.Value})");
+        }
+    }
+}
