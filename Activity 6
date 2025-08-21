@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class LogEntry
+{
+    public DateTime Timestamp;
+    public string Level;
+    public string Message;
+}
+
+class Program
+{
+    static void Main()
+    {
+        List<LogEntry> logs = new List<LogEntry>();
+
+        Console.Write("Enter number of logs: ");
+        int n = int.Parse(Console.ReadLine());
+
+        for (int i = 0; i < n; i++)
+        {
+            Console.WriteLine("Enter log (yyyy-MM-dd HH:mm:ss,LEVEL,Message):");
+            string line = Console.ReadLine();
+
+            try
+            {
+                string[] parts = line.Split(',');
+                DateTime time = DateTime.Parse(parts[0]);
+                string level = parts[1].Trim().ToUpper();
+                string message = parts[2].Trim();
+
+                logs.Add(new LogEntry { Timestamp = time, Level = level, Message = message });
+            }
+            catch
+            {
+                Console.WriteLine("Invalid format! Skipped.");
+            }
+        }
+
+        int choice;
+        do
+        {
+            Console.WriteLine("\nMenu:");
+            Console.WriteLine("1. Count by level");
+            Console.WriteLine("2. Search by keyword");
+            Console.WriteLine("3. Show last N ERRORs");
+            Console.WriteLine("4. Exit");
+            Console.Write("Choose: ");
+            choice = int.Parse(Console.ReadLine());
+
+            if (choice == 1)
+            {
+                int info = 0, warn = 0, error = 0;
+                foreach (var log in logs)
+                {
+                    if (log.Level == "INFO") info++;
+                    else if (log.Level == "WARN") warn++;
+                    else if (log.Level == "ERROR") error++;
+                }
+                Console.WriteLine($"INFO: {info}, WARN: {warn}, ERROR: {error}");
+            }
+            else if (choice == 2)
+            {
+                Console.Write("Enter keyword: ");
+                string keyword = Console.ReadLine().ToLower();
+                foreach (var log in logs)
+                {
+                    if (log.Message.ToLower().Contains(keyword))
+                        Console.WriteLine($"{log.Timestamp} [{log.Level}] {log.Message}");
+                }
+            }
+            else if (choice == 3)
+            {
+                Console.Write("Enter N: ");
+                int num = int.Parse(Console.ReadLine());
+                List<LogEntry> errors = logs.FindAll(l => l.Level == "ERROR");
+                int start = Math.Max(0, errors.Count - num);
+                for (int i = start; i < errors.Count; i++)
+                {
+                    Console.WriteLine($"{errors[i].Timestamp} [{errors[i].Level}] {errors[i].Message}");
+                }
+            }
+            else if (choice != 4)
+            {
+                Console.WriteLine("Invalid choice!");
+            }
+
+        } while (choice != 4);
+    }
+}
