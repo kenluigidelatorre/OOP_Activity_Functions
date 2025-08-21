@@ -1,0 +1,44 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        Console.Write("Enter username: ");
+        string u = Console.ReadLine();
+        if (IsValid(u))
+            Console.WriteLine("VALID");
+        else
+        {
+            Console.WriteLine("INVALID");
+            foreach (var s in Suggest(u))
+                Console.WriteLine("Suggestion: " + s);
+        }
+    }
+
+    static bool IsValid(string u)
+    {
+        if (u.Length < 6 || u.Length > 15) return false;
+        if (!char.IsLetter(u[0])) return false;
+        bool hasDigit = false;
+        foreach (char ch in u)
+        {
+            if (!(char.IsLetterOrDigit(ch) || ch == '_')) return false;
+            if (char.IsDigit(ch)) hasDigit = true;
+        }
+        return hasDigit;
+    }
+
+    static List<string> Suggest(string u)
+    {
+        List<string> list = new List<string>();
+        string fix = u.Replace(" ", "_");
+        if (!char.IsLetter(fix[0])) fix = "U" + fix;
+        if (fix.Length < 6) fix += "123";
+        list.Add(fix);
+        list.Add(fix + "1");
+        return list;
+    }
+}
