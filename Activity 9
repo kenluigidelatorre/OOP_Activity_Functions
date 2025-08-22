@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static string Fix(string s)
+    {
+        s = s.Trim();
+        while (s.Contains("  ")) s = s.Replace("  ", " ");
+        string[] words = s.ToLower().Split(' ');
+        for (int i = 0; i < words.Length; i++)
+            words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1);
+        return string.Join(" ", words);
+    }
+
+    static void Main()
+    {
+        Console.Write("How many books? ");
+        int n = int.Parse(Console.ReadLine());
+        var books = new List<(string Title, string Author)>();
+
+        for (int i = 0; i < n; i++)
+        {
+            Console.Write("Title: ");
+            string title = Fix(Console.ReadLine());
+            Console.Write("Author: ");
+            string author = Fix(Console.ReadLine());
+            books.Add((title, author));
+        }
+
+        while (true)
+        {
+            Console.Write("Search prefix (EXIT to stop): ");
+            string p = Console.ReadLine();
+            if (p.ToUpper() == "EXIT") break;
+
+            bool found = false;
+            foreach (var b in books)
+            {
+                if (b.Title.ToUpper().StartsWith(p.ToUpper()))
+                {
+                    Console.WriteLine($"{b.Title} by {b.Author}");
+                    found = true;
+                }
+            }
+            if (!found) Console.WriteLine("No results.");
+        }
+    }
+}
